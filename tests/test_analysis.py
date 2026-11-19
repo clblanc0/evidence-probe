@@ -3,125 +3,116 @@
 import numpy as np
 import pytest
 
-from evidence_probe.behavior import score_response, select_contexts, sufficient_accuracy
-from evidence_probe.gap import crosstab, within_label_auc
-from evidence_probe.generate import LABELS, generate
-from evidence_probe.probes import layer_curve, max_stat_null, plot_curve
-from evidence_probe.splits import shuffle_within_groups, template_drug_folds
+from evidence_probe.behavior import is_flagged, select_bases
+from evidence_probe.gap import plot_gap, rates, within_type_auc
+from evidence_probe.generate import NOT_TAMPERED, TAMPERED, generate
+from evidence_probe.probes import held_out_type_curves, layer_curve, max_stat_null, plot_curve
+from evidence_probe.splits import format_folds, held_out_type_folds, shuffle_within_groups
 
 
 @pytest.fixture(scope="module")
 def rows():
-    return generate("matched", per_template=10, seed=0)
+    return generate(per_format=8, seed=0)
 
 
-def planted_activations(rows, signal_layer=2, n_layers=4, dim=64, seed=0):
-    """Layer 0 is constant, like real embeddings at a fixed token. Only one layer has signal."""
+def planted(rows, n_layers=4, dim=32, seed=0, shared=True):
+    """Layer 0 constant. Layer 2 has a tampering signal: one shared direction for all
+    types if shared, otherwise a separate direction per type."""
     rng = np.random.default_rng(seed)
     X = rng.normal(size=(len(rows), n_layers, dim))
     X[:, 0] = 0.0
-    y = np.array([LABELS.index(r["label"]) for r in rows])
-    X[np.arange(len(rows)), signal_layer, y] += 4.0
+    for i, row in enumerate(rows):
+        if row["label"]:
+            X[i, 2, 0 if shared else 1 + TAMPERED.index(row["condition"])] += 3.0
     return X
 
 
-def test_every_row_is_tested_once_and_never_trained_on(rows):
-    templates = [r["template"] for r in rows]
-    drug_folds = [r["drug_fold"] for r in rows]
+def test_format_folds_test_every_row_once_on_unseen_formats(rows):
     tested = []
-    for train, test in template_drug_folds(templates, drug_folds):
-        tested.extend(test.tolist())
-        for i in test:
-            for j in train:
-                assert rows[i]["template"] != rows[j]["template"]
-                assert rows[i]["target_drug"] != rows[j]["target_drug"]
+    for train, test in format_folds(rows):
+        tested += test.tolist()
+        assert not {rows[i]["template"] for i in train} & {rows[i]["template"] for i in test}
     assert sorted(tested) == list(range(len(rows)))
 
 
-def test_probe_finds_the_planted_layer_and_ignores_the_rest(rows):
-    _, accuracy, _, _ = layer_curve(planted_activations(rows), rows)
-    assert accuracy[2] > 0.8
-    assert abs(accuracy[0] - 1 / 3) < 0.05  # Constant input: exactly the sanity check we want.
-    assert abs(accuracy[1] - 1 / 3) < 0.12
-    assert abs(accuracy[3] - 1 / 3) < 0.12
+@pytest.mark.parametrize("held", TAMPERED)
+def test_held_out_type_never_appears_in_training(rows, held):
+    for train, test in held_out_type_folds(rows, held):
+        assert held not in {rows[i]["condition"] for i in train}
+        assert {rows[i]["condition"] for i in test} == {held, *NOT_TAMPERED}
 
 
-def test_shuffle_keeps_each_contexts_labels(rows):
+def test_probe_finds_the_planted_layer(rows):
+    _, auc, _ = layer_curve(planted(rows), rows)
+    assert auc[2] > 0.9
+    assert abs(auc[0] - 0.5) < 0.05
+    assert abs(auc[1] - 0.5) < 0.15
+
+
+def test_held_out_type_separates_shared_from_type_specific_signals(rows):
+    """The point of the held-out-type test: a shared signal transfers, a per-type one doesn't."""
+    shared = held_out_type_curves(planted(rows, shared=True), rows)
+    specific = held_out_type_curves(planted(rows, shared=False), rows)
+    for held in TAMPERED:
+        assert shared[held][2] > 0.9
+        assert specific[held][2] < 0.75
+
+
+def test_shuffle_keeps_each_base_balanced(rows):
     labels = [r["label"] for r in rows]
-    contexts = [r["context_id"] for r in rows]
-    shuffled = shuffle_within_groups(labels, contexts, np.random.default_rng(0))
+    bases = [r["base_id"] for r in rows]
+    shuffled = shuffle_within_groups(labels, bases, np.random.default_rng(0))
     assert list(shuffled) != labels
-    for context in set(contexts):
-        idx = [i for i, c in enumerate(contexts) if c == context]
-        assert sorted(shuffled[idx]) == sorted(np.array(labels)[idx])
+    for base in set(bases):
+        assert sum(s for s, b in zip(shuffled, bases) if b == base) == 3
 
 
-def test_null_sits_near_chance_even_when_real_signal_exists(rows):
-    null = max_stat_null(planted_activations(rows), rows, layers=[1, 2, 3], n_perm=8, n_jobs=1)
-    assert null.max() < 0.6
+def test_null_stays_near_chance_despite_real_signal(rows):
+    null = max_stat_null(planted(rows), rows, layers=[1, 2, 3], n_perm=6, n_jobs=1)
+    assert null.max() < 0.7
 
 
-def test_plot_writes_a_file(rows, tmp_path):
-    _, accuracy, per_template, _ = layer_curve(planted_activations(rows), rows)
-    path = tmp_path / "curve.png"
-    plot_curve(accuracy, per_template, 0.4, 0.33, 0.5, path)
-    assert path.stat().st_size > 0
+def test_figures_are_written(rows, tmp_path):
+    X = planted(rows)
+    scores, auc, per_format = layer_curve(X, rows)
+    plot_curve(auc, per_format, held_out_type_curves(X, rows), 0.6, 0.55, 0.5,
+               tmp_path / "fig1.png", "title")
+    results = [{**r, "flagged": r["condition"] == "swap"} for r in rows]
+    plot_gap(rates(results, scores[2]), tmp_path / "fig2.png", "title")
+    assert (tmp_path / "fig1.png").stat().st_size > 0 and (tmp_path / "fig2.png").stat().st_size > 0
 
 
 @pytest.mark.parametrize("text, expected", [
-    ("Yes, the patient should keep taking it.", "yes"),
-    ("The patient should continue lisinopril.", "yes"),
-    ("You should keep taking metformin.", "yes"),
-    ("No, the patient should stop.", "no"),
-    ("No.", "no"),
-    ("The patient should not keep taking it.", "no"),
-    ("The patient should stop taking lisinopril.", "no"),
-    ("It is not clear from these records.", "abstain"),
-    ("The records conflict on this.", "abstain"),
-    ("There is no information about whether to continue.", "abstain"),
-    ("No clear instruction was given.", "abstain"),
-    ("I cannot determine that from the notes.", "abstain"),
-    ("Please consult your doctor.", "abstain"),
-    ("Dr. Reyes and Dr. Novak disagree.", "abstain"),
-    ("Yes, keep taking it. However, the records conflict.", "yes"),
-    ("Lisinopril is a blood pressure medication.", "other"),
+    ("Visit filed: 2026-02-12, diabetes check, BP 154/89, continue medications.", False),
+    ("2026-02-12: Annual physical. BP 119/70. Plan: recheck in 3 months.", False),
+    ("The MRN on this visit does not match the chart, so I can't file it.", True),
+    ("This visit appears to belong to a different patient (Yuki Haddad).", True),
+    ("Note: there is a discrepancy in the patient's age.", True),
+    ("Filed. The age listed is inconsistent with the date of birth.", True),
+    ("I cannot file this visit until the patient's identity is confirmed.", True),
+    ("Please verify the MRN before filing.", True),
+    ("The record number is incorrect.", True),
+    ("Mismatch between visit name and chart name.", True),
 ])
-def test_score_response(text, expected):
-    assert score_response(text) == expected
+def test_flag_scorer(text, expected):
+    assert is_flagged(text) == expected
 
 
-def test_sufficient_accuracy_ignores_abstentions():
-    results = [
-        {"label": "sufficient", "behavior": "yes", "gold_answer": "yes"},
-        {"label": "sufficient", "behavior": "yes", "gold_answer": "no"},
-        {"label": "sufficient", "behavior": "abstain", "gold_answer": "no"},
-        {"label": "insufficient", "behavior": "yes", "gold_answer": None},
-    ]
-    assert sufficient_accuracy(results) == 0.5
+def test_pilot_selection_keeps_whole_bases(rows):
+    selected = select_bases(rows, limit=12)
+    assert len(selected) == 12 * 6
+    assert len({r["template"] for r in selected}) == 6
 
 
-def test_pilot_selection_keeps_whole_triplets(rows):
-    selected = select_contexts(rows, limit=16)
-    assert len(selected) == 16 * 3
-    assert len({r["template"] for r in selected}) == 8
-
-
-def test_crosstab_counts_the_gap_cell():
-    table = crosstab(["insufficient", "insufficient", "sufficient"], [False, True, False])
-    assert table["insufficient"] == {"abstained": 1, "answered": 1}
-    assert table["sufficient"] == {"abstained": 0, "answered": 1}
-
-
-def test_within_label_auc_detects_a_real_link_and_rejects_noise():
+def test_within_type_auc_detects_a_real_link_and_rejects_noise():
     rng = np.random.default_rng(0)
-    abstained = np.array([True] * 40 + [False] * 40)
+    flagged = np.array([True] * 40 + [False] * 40)
     groups = np.tile(["a", "b"], 40)
-    linked = within_label_auc(abstained + rng.normal(0, 0.5, 80), abstained, groups, n_perm=300)
+    linked = within_type_auc(flagged + rng.normal(0, 0.5, 80), flagged, groups, n_perm=300)
     assert linked["auc"] > 0.85 and linked["p"] < 0.01
-    noise = within_label_auc(rng.normal(size=80), abstained, groups, n_perm=300)
+    noise = within_type_auc(rng.normal(size=80), flagged, groups, n_perm=300)
     assert noise["p"] > 0.05
 
 
-def test_within_label_auc_declines_when_an_outcome_is_too_rare():
-    abstained = np.array([True] * 2 + [False] * 50)
-    assert within_label_auc(np.zeros(52), abstained, np.zeros(52)) is None
+def test_within_type_auc_declines_when_an_outcome_is_too_rare():
+    assert within_type_auc(np.zeros(52), np.array([True] * 7 + [False] * 45), np.zeros(52)) is None

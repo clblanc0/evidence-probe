@@ -1,14 +1,21 @@
-"""Train a probe per layer, score it on held-out templates and drugs, and plot the curve.
+"""Decode tampered vs untampered from activations, layer by layer, on held-out formats.
+
+Two analyses:
+  all types      trained and tested on all three tampering types (figure 1, blue)
+  held-out type  trained without one tampering type, tested on it. This is the
+                 shortcut test from the research plan: a probe that learned "a digit
+                 changed" shouldn't catch age shifts unless it found something general.
 
 Choices to be able to defend:
-  * Regularization is fixed in advance (C = 0.01), since the data have far more
-    dimensions than training rows and tuning it on test folds would be double dipping.
-  * The scaler is fit inside each fold, so nothing about the test rows leaks in.
-  * The significance threshold is a max statistic. Each label shuffle records its BEST
-    accuracy over the layers tested, so picking the peak layer is already paid for.
+  * Regularization is fixed in advance (C = 0.01). There are far more dimensions than
+    training rows, and tuning on test folds would be double dipping.
+  * The scaler is fit inside each fold.
+  * AUC is averaged over held-out formats.
+  * The significance threshold is a max statistic: each label shuffle records its best
+    AUC over the layers tested, so picking the peak layer is already paid for.
 
 Usage:
-    python -m evidence_probe.probes data/matched.jsonl activations/matched_neutral.npz --out-dir results
+    python -m evidence_probe.probes data/charts.jsonl activations/neutral.npz --position visit_end --out-dir results
 """
 
 import argparse
@@ -18,98 +25,112 @@ from pathlib import Path
 import numpy as np
 from joblib import Parallel, delayed
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from evidence_probe.baselines import bag_of_words_accuracy, load_rows, local_window_accuracy
-from evidence_probe.splits import shuffle_within_groups, template_drug_folds
+from evidence_probe.baselines import bag_of_words_auc, load_rows, visit_only_auc
+from evidence_probe.generate import TAMPERED
+from evidence_probe.splits import format_folds, held_out_type_folds, shuffle_within_groups
 
 C = 0.01
 
-# Validated reference palette: categorical slots 1-3 and the chart chrome.
+# Reference palette: categorical slots 1 and 2, plus chart chrome.
 SURFACE, INK, INK_2, MUTED, GRID, AXIS = "#fcfcfb", "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7"
-PROBE_COLOR, LOCAL_COLOR, BOW_COLOR = "#2a78d6", "#eb6834", "#1baf7a"
+ALL_TYPES_COLOR, HELD_OUT_COLOR = "#2a78d6", "#eb6834"
 
 
-def _oof_proba(X, y, folds, classes) -> np.ndarray:
-    """Out-of-fold class probabilities. Every row is scored by a probe that never saw it."""
-    proba = np.zeros((len(y), len(classes)))
+def _fold_scores(X, y, folds):
+    """Out-of-fold probability of 'tampered' for each test row, and mean AUC over folds."""
+    scores = np.full(len(y), np.nan)
+    aucs = []
     for train, test in folds:
         probe = make_pipeline(StandardScaler(), LogisticRegression(C=C, max_iter=2000))
         probe.fit(X[train], y[train])
-        columns = [classes.index(c) for c in probe.classes_]
-        proba[np.ix_(test, columns)] = probe.predict_proba(X[test])
-    return proba
+        scores[test] = probe.predict_proba(X[test])[:, 1]
+        aucs.append(roc_auc_score(y[test], scores[test]))
+    return scores, float(np.mean(aucs))
 
 
 def layer_curve(X, rows):
-    """Return (proba [layers, N, classes], accuracy [layers], per-template accuracy dict)."""
+    """All tampering types. Returns (scores [layers, N], auc [layers], per-format auc)."""
     y = np.array([r["label"] for r in rows])
+    folds = list(format_folds(rows))
+    results = [_fold_scores(X[:, layer], y, folds) for layer in range(X.shape[1])]
+    scores = np.stack([s for s, _ in results])
+    auc = np.array([a for _, a in results])
     templates = np.array([r["template"] for r in rows])
-    classes = sorted(set(y.tolist()))
-    folds = list(template_drug_folds(templates, [r["drug_fold"] for r in rows]))
-    proba = np.stack([_oof_proba(X[:, layer], y, folds, classes) for layer in range(X.shape[1])])
-    predicted = np.array(classes)[proba.argmax(axis=2)]
-    accuracy = (predicted == y).mean(axis=1)
-    per_template = {t: (predicted[:, templates == t] == y[templates == t]).mean(axis=1)
-                    for t in np.unique(templates)}
-    return proba, accuracy, per_template, classes
+    per_format = {t: [float(roc_auc_score(y[templates == t], s[templates == t])) for s in scores]
+                  for t in np.unique(templates)}
+    return scores, auc, per_format
+
+
+def held_out_type_curves(X, rows) -> dict[str, np.ndarray]:
+    """AUC by layer for each tampering type when the probe never trained on it."""
+    y = np.array([r["label"] for r in rows])
+    curves = {}
+    for held in TAMPERED:
+        folds = list(held_out_type_folds(rows, held))
+        curves[held] = np.array([_fold_scores(X[:, layer], y, folds)[1] for layer in range(X.shape[1])])
+    return curves
 
 
 def max_stat_null(X, rows, layers, n_perm: int, seed: int = 0, n_jobs: int = -1) -> np.ndarray:
-    """For each label shuffle, the best accuracy across the given layers."""
+    """For each label shuffle (within base chart), the best AUC across the given layers."""
     y = np.array([r["label"] for r in rows])
-    contexts = [r["context_id"] for r in rows]
-    folds = list(template_drug_folds([r["template"] for r in rows], [r["drug_fold"] for r in rows]))
-    classes = sorted(set(y.tolist()))
+    bases = [r["base_id"] for r in rows]
+    folds = list(format_folds(rows))
 
     def one_shuffle(perm_seed):
-        shuffled = shuffle_within_groups(y, contexts, np.random.default_rng(perm_seed))
-        best = 0.0
-        for layer in layers:
-            proba = _oof_proba(X[:, layer], shuffled, folds, classes)
-            best = max(best, (np.array(classes)[proba.argmax(axis=1)] == shuffled).mean())
-        return best
+        shuffled = shuffle_within_groups(y, bases, np.random.default_rng(perm_seed))
+        return max(_fold_scores(X[:, layer], shuffled, folds)[1] for layer in layers)
 
     seeds = np.random.SeedSequence(seed).generate_state(n_perm)
     return np.array(Parallel(n_jobs=n_jobs)(delayed(one_shuffle)(int(s)) for s in seeds))
 
 
-def plot_curve(accuracy, per_template, threshold, bow, local_window, path: Path) -> None:
+def plot_curve(auc, per_format, held_out, threshold, bow, visit_only, path: Path, title: str) -> None:
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    layers = np.arange(len(accuracy))
-    template_matrix = np.stack(list(per_template.values()))
-    sem = template_matrix.std(axis=0, ddof=1) / np.sqrt(len(template_matrix))
+    layers = np.arange(len(auc))
+    format_matrix = np.array(list(per_format.values()))
+    sem = format_matrix.std(axis=0, ddof=1) / np.sqrt(len(format_matrix))
+    held_out_mean = np.mean(list(held_out.values()), axis=0)
 
     fig, ax = plt.subplots(figsize=(7.5, 4.2), dpi=200, facecolor=SURFACE)
     ax.set_facecolor(SURFACE)
-    ax.fill_between(layers, accuracy - sem, accuracy + sem, color=PROBE_COLOR, alpha=0.15, lw=0)
-    ax.plot(layers, accuracy, color=PROBE_COLOR, lw=1.5, label="Activation probe (±1 SEM over templates)")
-    ax.axhline(local_window, color=LOCAL_COLOR, lw=1.5, label="Text: sentences naming the drug")
-    ax.axhline(bow, color=BOW_COLOR, lw=1.5, label="Text: bag of words, whole prompt")
+    ax.fill_between(layers, auc - sem, auc + sem, color=ALL_TYPES_COLOR, alpha=0.15, lw=0)
+    ax.plot(layers, auc, color=ALL_TYPES_COLOR, lw=1.5, label="Probe, all tampering types (±1 SEM over formats)")
+    ax.plot(layers, held_out_mean, color=HELD_OUT_COLOR, lw=1.5,
+            label="Probe, tested on a tampering type it never trained on (mean of 3)")
+
+    references = [(bow, "Text: bag of words", "-."), (visit_only, "Text: new visit only", ":")]
     if threshold is not None:
-        ax.axhline(threshold, color=INK_2, lw=1, ls="--", label="Shuffled labels, 95th pct of best layer")
-    ax.axhline(1 / 3, color=MUTED, lw=1, ls=":", label="Chance")
+        references.append((threshold, "Shuffled labels, 95th pct", "--"))
+    for value, text, style in references:
+        ax.axhline(value, color=INK_2, lw=1, ls=style)
+        ax.annotate(f"{text} ({value:.2f})", (layers[-1], value), xytext=(-4, 3),
+                    textcoords="offset points", ha="right", fontsize=7.5, color=INK_2)
+    ax.axhline(0.5, color=MUTED, lw=0.8)
 
-    peak = int(accuracy.argmax())
-    ax.annotate(f"{accuracy[peak]:.2f}, layer {peak}", (peak, accuracy[peak]), xytext=(0, 7),
+    peak = int(auc.argmax())
+    ax.annotate(f"{auc[peak]:.2f}, layer {peak}", (peak, auc[peak]), xytext=(0, 7),
                 textcoords="offset points", ha="center", fontsize=8.5, color=INK)
-
     ax.set_xlim(0, layers[-1])
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0.3, 1.0)
+    ax.set_title(title, color=INK, fontsize=10, loc="left")
     ax.set_xlabel("Layer (0 = embeddings)", color=INK_2, fontsize=9)
-    ax.set_ylabel("Accuracy on held-out templates and drugs", color=INK_2, fontsize=9)
+    ax.set_ylabel("AUC, held-out chart formats", color=INK_2, fontsize=9)
     ax.grid(axis="y", color=GRID, lw=0.6)
     ax.set_axisbelow(True)
     ax.tick_params(colors=MUTED, labelsize=8, length=0)
     for side in ("top", "right", "left"):
         ax.spines[side].set_visible(False)
     ax.spines["bottom"].set_color(AXIS)
-    ax.legend(frameon=False, fontsize=8, labelcolor=INK_2, loc="upper left", ncol=1)
+    ax.legend(frameon=False, fontsize=8, labelcolor=INK_2, loc="upper left")
     fig.tight_layout()
     fig.savefig(path, facecolor=SURFACE)
     plt.close(fig)
@@ -124,49 +145,56 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("data", type=Path)
     parser.add_argument("activations", type=Path)
+    parser.add_argument("--position", choices=["visit_end", "final"], default="visit_end")
     parser.add_argument("--out-dir", type=Path, default=Path("results"))
     parser.add_argument("--n-perm", type=int, default=100, help="0 skips the shuffled-label null.")
-    parser.add_argument("--null-every", type=int, default=2,
-                        help="Test every Nth layer in the null. Lower is stricter but slower.")
+    parser.add_argument("--null-every", type=int, default=2, help="Test every Nth layer in the null.")
     args = parser.parse_args()
 
     rows = load_rows(args.data)
     saved = np.load(args.activations, allow_pickle=False)
-    X = align(saved["X"], saved["ids"], rows)
+    X = align(saved[args.position], saved["ids"], rows)
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    if X[:, 0].std(axis=0).max() > 1e-5:
-        print("WARNING: layer 0 varies across prompts, so the final token is not constant. "
-              "Check the prompt template before trusting anything else.")
+    if args.position == "final" and X[:, 0].std(axis=0).max() > 1e-5:
+        print("WARNING: layer 0 varies at the final token, so the prompt ending isn't constant.")
 
-    proba, accuracy, per_template, classes = layer_curve(X, rows)
-    bow, local_window = bag_of_words_accuracy(rows), local_window_accuracy(rows)
-    print(f"Chance 0.333 | bag of words {bow:.3f} | local window {local_window:.3f}")
-    for layer, value in enumerate(accuracy):
-        print(f"  layer {layer:2d}  {value:.3f}")
+    scores, auc, per_format = layer_curve(X, rows)
+    held_out = held_out_type_curves(X, rows)
+    bow, visit_only = bag_of_words_auc(rows), visit_only_auc(rows)
+    print(f"Chance 0.5 | bag of words {bow:.3f} | new visit only {visit_only:.3f}")
+    print("layer  all types  " + "  ".join(f"held-out {t}" for t in TAMPERED))
+    for layer in range(len(auc)):
+        print(f"{layer:5d}  {auc[layer]:9.3f}  " + "  ".join(
+            f"{held_out[t][layer]:{len('held-out ' + t)}.3f}" for t in TAMPERED))
 
     threshold, p_value, null = None, None, []
     if args.n_perm:
         null_layers = list(range(1, X.shape[1], args.null_every))
         null = max_stat_null(X, rows, null_layers, args.n_perm)
         threshold = float(np.quantile(null, 0.95))
-        tested_peak = accuracy[null_layers].max()
+        tested_peak = auc[null_layers].max()
         p_value = float((1 + (null >= tested_peak).sum()) / (args.n_perm + 1))
-        print(f"Null: 95th pct of best-layer accuracy {threshold:.3f}. "
+        print(f"Null: 95th pct of best-layer AUC {threshold:.3f}. "
               f"Peak over tested layers {tested_peak:.3f}, p = {p_value:.4f}")
 
-    np.savez(args.out_dir / "probe_oof.npz", proba=proba, classes=classes,
-             ids=[r["id"] for r in rows])
-    (args.out_dir / "probe_curve.json").write_text(json.dumps({
-        "accuracy": accuracy.tolist(),
-        "per_template": {t: v.tolist() for t, v in per_template.items()},
+    stem = f"probe_{args.position}"
+    np.savez(args.out_dir / f"{stem}_oof.npz", scores=scores, ids=[r["id"] for r in rows])
+    (args.out_dir / f"{stem}.json").write_text(json.dumps({
+        "position": args.position,
+        "auc": auc.tolist(),
+        "per_format": per_format,
+        "held_out_type": {t: v.tolist() for t, v in held_out.items()},
         "bag_of_words": bow,
-        "local_window": local_window,
+        "visit_only": visit_only,
         "null_threshold_95": threshold,
         "p_value_peak": p_value,
-        "null_max_accuracy": list(map(float, null)),
+        "null_max_auc": list(map(float, null)),
     }, indent=2))
-    plot_curve(accuracy, per_template, threshold, bow, local_window, args.out_dir / "accuracy_by_layer.png")
+    where = "after reading the new visit" if args.position == "visit_end" else "before answering"
+    plot_curve(auc, per_format, held_out, threshold, bow, visit_only,
+               args.out_dir / f"fig1_auc_by_layer_{args.position}.png",
+               f"Is tampering decodable from activations {where}?")
     print(f"Wrote results to {args.out_dir}")
 
 

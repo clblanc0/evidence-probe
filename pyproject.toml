@@ -1,13 +1,13 @@
 [project]
 name = "evidence-probe"
 version = "0.1.0"
-description = "Do an LLM's activations encode whether the evidence is enough to answer, and does its behavior follow?"
+description = "Do LLMs register patient mix-ups internally, even when they file the record anyway?"
 requires-python = ">=3.10"
-dependencies = ["numpy", "scikit-learn", "matplotlib"]
+dependencies = ["numpy", "scikit-learn", "matplotlib", "joblib"]
 
 [project.optional-dependencies]
 model = ["torch", "transformers", "accelerate"]
-dev = ["pytest"]
+dev = ["pytest", "nbformat"]
 
 [build-system]
 requires = ["setuptools>=68"]

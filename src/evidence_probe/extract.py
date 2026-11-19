@@ -1,14 +1,16 @@
-"""Save every layer's activation at the final prompt token.
+"""Record every layer's activations at two points in each prompt.
 
-The final token is the end of the chat template's assistant header, so it is the same
-token in every prompt. That gives a built-in sanity check: layer 0 (the embedding) must
-be identical across prompts, and a probe on it must sit at chance.
+visit_end  The last token of the new visit, the moment the model has just read the
+           identity line. The model is causal, so nothing after this point (the task
+           instruction included) can influence it.
+final      The last prompt token, just before the model starts answering. It's the same
+           chat-template token in every prompt, so layer 0 must be identical across
+           prompts. That's a free check on the pipeline.
 
-Prompts run one at a time. It's fast enough for 600 short prompts, and with no padding
-there's no padding bug to reason about.
+Prompts run one at a time, so there is no padding to get wrong.
 
 Usage:
-    python -m evidence_probe.extract data/matched.jsonl --out activations/matched_neutral.npz
+    python -m evidence_probe.extract data/charts.jsonl --out activations/neutral.npz
 """
 
 import argparse
@@ -33,22 +35,36 @@ def load_model(name: str):
     return model, tokenizer
 
 
-def final_token_activations(model, tokenizer, prompts: list[str]):
-    """Return (activations [N, layers + 1, hidden], token count per prompt).
+def visit_end_token(prompt: str, new_visit: str, offsets) -> int:
+    """Index of the token holding the new visit's last character."""
+    last_char = prompt.rindex(new_visit) + len(new_visit) - 1
+    for index, (start, end) in enumerate(offsets):
+        if start <= last_char < end:
+            return index
+    raise ValueError("No token covers the end of the new visit.")
 
-    Index 0 is the embedding output. In Hugging Face the last entry has the final
-    layer norm applied, unlike the others, so don't over-read a jump at the last layer.
+
+def record(model, tokenizer, prompts: list[str], new_visits: list[str]):
+    """Return {"visit_end": [N, layers + 1, hidden], "final": same} and token counts.
+
+    Index 0 is the embedding output. In Hugging Face the last entry has the final layer
+    norm applied, unlike the others, so don't over-read a jump at the last layer.
     """
     import torch
 
-    activations, n_tokens = [], []
+    out = {"visit_end": [], "final": []}
+    n_tokens = []
     with torch.no_grad():
-        for prompt in prompts:
-            inputs = tokenizer(prompt, return_tensors="pt", add_special_tokens=False).to(model.device)
-            hidden = model(**inputs, output_hidden_states=True).hidden_states
-            activations.append(torch.stack([h[0, -1] for h in hidden]).float().cpu().numpy())
-            n_tokens.append(inputs["input_ids"].shape[1])
-    return np.stack(activations), np.array(n_tokens)
+        for prompt, new_visit in zip(prompts, new_visits):
+            encoded = tokenizer(prompt, return_tensors="pt", add_special_tokens=False,
+                                return_offsets_mapping=True)
+            offsets = encoded.pop("offset_mapping")[0].tolist()
+            position = visit_end_token(prompt, new_visit, offsets)
+            hidden = model(**encoded.to(model.device), output_hidden_states=True).hidden_states
+            out["visit_end"].append(torch.stack([h[0, position] for h in hidden]).float().cpu().numpy())
+            out["final"].append(torch.stack([h[0, -1] for h in hidden]).float().cpu().numpy())
+            n_tokens.append(encoded["input_ids"].shape[1])
+    return {k: np.stack(v) for k, v in out.items()}, np.array(n_tokens)
 
 
 def main() -> None:
@@ -61,17 +77,13 @@ def main() -> None:
 
     rows = load_rows(args.data)
     model, tokenizer = load_model(args.model)
-    prompts = [render(tokenizer, row, args.variant) for row in rows]
-    X, n_tokens = final_token_activations(model, tokenizer, prompts)
+    prompts = [render(tokenizer, r, args.variant) for r in rows]
+    activations, n_tokens = record(model, tokenizer, prompts, [r["new_visit"] for r in rows])
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    np.savez(args.out, X=X, n_tokens=n_tokens, ids=[r["id"] for r in rows],
+    np.savez(args.out, **activations, n_tokens=n_tokens, ids=[r["id"] for r in rows],
              model=args.model, variant=args.variant)
-    print(f"Saved {X.shape} to {args.out}")
-
-    labels = np.array([r["label"] for r in rows])
-    for label in np.unique(labels):
-        print(f"  mean tokens, {label}: {n_tokens[labels == label].mean():.1f}")
+    print(f"Saved {activations['visit_end'].shape} per position to {args.out}")
 
 
 if __name__ == "__main__":

@@ -1,111 +1,103 @@
-# Does the model know when it doesn't know?
+# Do models register patient mix-ups internally?
 
-**Question.** When an LLM reads clinical text, do its activations encode whether the
-evidence is enough to answer? If so, does its behavior follow?
+**When an LLM files a visit into the wrong patient's chart, do its activations register
+the mismatch even though it says nothing?**
 
-**Status: no model has been run yet.** The Results section stays empty until one has.
+*A weekend pilot, not a paper: one small open model, synthetic charts.*
 
-## Design in one example
+## Why
 
-The same context produces all three labels, depending on which drug the question names:
+<!-- Check these numbers against the paper before publishing. -->
+Klang et al. (2026) found that clinical agents usually write straight through tampered
+charts. The best model caught 17.4% of full patient swaps and almost none of the
+one-digit medical record number (MRN) changes. That study measured behavior only. This
+pilot asks the inside question, using the methods of neural decoding: train a decoder on
+the model's activations, with the controls that keep a decoder honest.
 
-```
-Chart notes, all entered during today's visit:
-- Dr. Okafor: discontinue furosemide now.
-- Dr. Haddad: discontinue pantoprazole now.
-- Dr. Lindqvist: keep furosemide unchanged.
-- Dr. Mensah: metformin on med list.
-- Dr. Castillo: pantoprazole on med list.
-- Dr. Tanaka: metformin on med list.
-```
+## Method
 
-| Question: should the patient keep taking... | Label |
+- **Data:** 540 synthetic charts in 6 layouts. Each base chart (a patient, two prior
+  visits, one new visit to file) comes in 6 versions that differ only in the new visit's
+  identity line:
+  - **Untampered:** clean, name reformatted ("GOMEZ, MARIA"), MRN dashed ("004-8213")
+  - **Tampered:** patient swap, one-digit MRN change, age shift
+- **Task:** the model is asked to file the new visit as a one-line chart entry. With
+  the `check` prompt, it's also asked to confirm the visit belongs to the patient.
+- **Activations:** every layer, recorded at the last token of the new visit and at the
+  last prompt token.
+- **Probe:** logistic regression per layer, always tested on chart layouts it never
+  trained on. A second probe is tested on a tampering type it never trained on.
+- **Controls:** shuffled labels (within each base chart), two text-only baselines, and
+  the same reformatting on tampered and untampered rows, so formatting can't give the
+  label away.
+
+## Results
+
+*To be filled in after the Colab run.*
+
+**Figure 1.** *Probe AUC by layer, with shuffled-label and text-only baselines.*
+
+**Figure 2.** *For each condition: how often the probe caught it, how often the model
+flagged it, and how often a name-or-MRN string rule would have.*
+
+**Findings.** *Three sentences.*
+
+## Controls measured so far
+
+These don't need the model. AUC on held-out layouts, where chance is 0.5:
+
+| Baseline | AUC |
 |---|---|
-| pantoprazole? | sufficient (answer: no) |
-| furosemide? | contradictory |
-| metformin? | insufficient |
+| Bag of words, whole prompt | 0.55 |
+| New visit only, character n-grams | 0.48 |
 
-Length, vocabulary and mention count match by construction, so the label exists only in
-how the question relates to the context. See [docs/design_notes.md](docs/design_notes.md)
-for the reasoning behind each choice.
+The new-visit-only baseline caught a leak in the first version of the generator. Only
+untampered rows had reformatted names and MRNs, so formatting alone meant "not
+tampered", and that baseline scored 0.64. Giving tampered rows the same formatting mix
+brought it down to chance.
 
-## Text-only controls (measured)
+A name-or-MRN string rule flags every swap and every MRN change. It also raises a false
+alarm on every reformatted name or dashed MRN, and it can't see an age shift at all.
 
-Accuracy on 600 rows, chance = 0.333. Reproduce with `python -m evidence_probe.baselines`.
+## Limitations
 
-| Baseline | Matched, new template | Matched, new context | Naive, new template | Naive, new context |
-|---|---|---|---|---|
-| Bag of words, whole prompt | 0.313 | 0.312 | 0.503 | 0.807 |
-| Position of the drug's sentences | 0.333 | 0.347 | 0.323 | 0.292 |
-| Only the sentences naming the drug | 0.543 | 0.963 | 0.580 | 0.955 |
+- One small model, synthetic charts, a single task. Nothing here is clinical evidence.
+- A careful rule (normalize formatting, compute age from date of birth) would solve this
+  synthetic task perfectly. The point is not to beat rules but to compare what the model
+  registers with what it says.
+- Decoding shows that information is present, not that the model uses it. Only an
+  intervention, such as steering along the probe direction, could show that.
+- The probe is trained on the input's label, so "the probe caught it" means the
+  activations separate tampered from untampered charts. It doesn't show that the model
+  believes something is wrong.
+- *Add what the results reveal: scorer agreement with hand-coding, and any condition
+  where the model almost never flags.*
 
-The naive design is the obvious one, with a single drug per context. Its word counts
-match across labels (33.1 to 33.7), yet bag of words reaches 0.81, so length matching
-alone would have missed the leak.
+## Reproduce
 
-## Run it
-
-On Colab or Cheaha, with a GPU for steps 1 and 2:
+Open [`notebooks/run_pipeline.ipynb`](notebooks/run_pipeline.ipynb) in Colab with a T4
+GPU and run the cells in order. It takes about an hour. To work locally instead:
 
 ```bash
 pip install -e ".[model,dev]"
 pytest
 ```
 
-**Step 0, the pilot. Do this first.** It takes minutes and decides whether the rest is
-worth running.
-
-```bash
-python -m evidence_probe.behavior data/matched.jsonl --limit-contexts 40 --out results/pilot.jsonl
-```
-
-Go/no-go checks are in [the design notes](docs/design_notes.md#go-or-no-go-after-the-pilot).
-
-**Then the full run.**
-
-```bash
-python -m evidence_probe.extract data/matched.jsonl --out activations/matched_neutral.npz
-```
-
-```bash
-python -m evidence_probe.behavior data/matched.jsonl --out results/behavior.jsonl --export-blind results/hand_code.csv
-```
-
-```bash
-python -m evidence_probe.probes data/matched.jsonl activations/matched_neutral.npz --out-dir results
-```
-
-```bash
-python -m evidence_probe.gap results/behavior.jsonl results/probe_oof.npz --layer <peak layer>
-```
-
-Add `--variant permission` to `extract` and `behavior` to allow abstention explicitly.
-Use the same variant for both.
-
-## Layout
-
-| File | Purpose |
+| Step | Module |
 |---|---|
-| `src/evidence_probe/templates.py` | Wording: 8 held-out template families, 24 drugs |
-| `src/evidence_probe/generate.py` | Matched and naive datasets |
-| `src/evidence_probe/baselines.py` | Text-only controls |
-| `src/evidence_probe/splits.py` | Held-out splits and within-context label shuffling |
-| `src/evidence_probe/prompting.py` | The one place prompts are built |
-| `src/evidence_probe/extract.py` | Final-token activations per layer |
-| `src/evidence_probe/behavior.py` | Generation and abstention scoring |
-| `src/evidence_probe/probes.py` | Accuracy by layer, shuffled-label null, figure |
-| `src/evidence_probe/gap.py` | Probe against behavior, including the within-label test |
+| Generate charts | `evidence_probe.generate` |
+| Text controls and rule baseline | `evidence_probe.baselines` |
+| Record activations | `evidence_probe.extract` |
+| Model behavior and flag scoring | `evidence_probe.behavior` |
+| Probes, null and figure 1 | `evidence_probe.probes` |
+| Inside vs behavior and figure 2 | `evidence_probe.gap` |
 
-## Results
+The reasoning behind each design choice is in [docs/design_notes.md](docs/design_notes.md).
 
-*To be filled in: accuracy by layer, the probe-against-behavior table, and one paragraph.*
+## Reference
 
-## Limitations
-
-- Small model, synthetic data, one question type. Nothing here is clinical evidence.
-- Decoding shows that information is present, not that the model uses it. Only an
-  intervention such as steering can speak to use.
-- The probe is trained on the input's label, so "probe says insufficient" means the
-  activations resemble those of insufficient inputs. It doesn't show that the model
-  holds a belief about its own evidence.
-- *Add what the results reveal, especially scorer agreement and any empty table cells.*
+Klang E, Glicksberg BS, Gorenshtein A, Gavin N, Freeman R, Stump L, Charney AW, Ting DSW,
+Omar M, Nadkarni GN. Clinical agents fail silently on patient identity. *International
+Journal of Medical Informatics*. 2026;218:106514.
+[doi:10.1016/j.ijmedinf.2026.106514](https://doi.org/10.1016/j.ijmedinf.2026.106514).
+Preprint: [medRxiv](https://www.medrxiv.org/content/10.1101/2025.10.17.25338226).

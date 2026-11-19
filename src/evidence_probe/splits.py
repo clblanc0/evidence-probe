@@ -1,43 +1,40 @@
 """Cross-validation splits shared by the text baselines and the activation probes.
 
-Test rows come from a held-out template AND a held-out drug set. Training rows share
-neither. Every row is tested exactly once. Holding out the template also keeps the
-rows of a triplet together, since a context belongs to one template.
+Every split holds out whole chart formats, so a probe is always tested on a layout it
+never saw. Holding out a format also keeps a base chart's six rows together.
 """
 
 import numpy as np
 
+from evidence_probe.generate import NOT_TAMPERED
 
-def template_drug_folds(templates, drug_folds):
-    """Yield (train_idx, test_idx) for each template x drug-set combination."""
-    templates = np.asarray(templates)
-    drug_folds = np.asarray(drug_folds)
+
+def format_folds(rows):
+    """Yield (train_idx, test_idx), one fold per held-out chart format."""
+    templates = np.array([r["template"] for r in rows])
     for template in np.unique(templates):
-        for drug_fold in np.unique(drug_folds):
-            test = np.where((templates == template) & (drug_folds == drug_fold))[0]
-            train = np.where((templates != template) & (drug_folds != drug_fold))[0]
-            if len(test):
-                yield train, test
+        yield np.where(templates != template)[0], np.where(templates == template)[0]
 
 
-def context_folds(context_ids, n_splits=5):
-    """Yield (train_idx, test_idx) holding out contexts only, so templates are shared.
+def held_out_type_folds(rows, held_type: str):
+    """Train without one tampering type, then test on it.
 
-    This is the easier split. Used for text baselines, to show what a text reader can do
-    when it has seen the test template's wording.
+    Train: other formats, every condition except held_type.
+    Test: the held-out format, held_type plus all untampered conditions.
     """
-    from sklearn.model_selection import GroupKFold
-
-    context_ids = np.asarray(context_ids)
-    placeholder = np.zeros(len(context_ids))
-    yield from GroupKFold(n_splits=n_splits).split(placeholder, groups=context_ids)
+    templates = np.array([r["template"] for r in rows])
+    conditions = np.array([r["condition"] for r in rows])
+    in_test_conditions = np.isin(conditions, (held_type, *NOT_TAMPERED))
+    for template in np.unique(templates):
+        train = np.where((templates != template) & (conditions != held_type))[0]
+        test = np.where((templates == template) & in_test_conditions)[0]
+        yield train, test
 
 
 def shuffle_within_groups(labels, groups, rng):
-    """Permute labels within each group (a context's triplet).
+    """Permute labels within each base chart, keeping the data's structure intact.
 
-    This keeps the data's structure intact, unlike a global shuffle, in the same spirit
-    as a within-participant surrogate.
+    The same idea as a within-participant surrogate.
     """
     labels = np.asarray(labels).copy()
     groups = np.asarray(groups)
