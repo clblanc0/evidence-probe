@@ -107,20 +107,23 @@ def plot_curve(auc, per_format, held_out, threshold, bow, visit_only, path: Path
     ax.plot(layers, held_out_mean, color=HELD_OUT_COLOR, lw=1.5,
             label="Probe, tested on a tampering type it never trained on (mean of 3)")
 
-    references = [(bow, "Text: bag of words", "-."), (visit_only, "Text: new visit only", ":")]
+    # Labels go above or below their line so near-equal references don't collide.
+    references = [(bow, "Text: bag of words", "-.", 3, "bottom"),
+                  (visit_only, "Text: new visit only", ":", -3, "top")]
     if threshold is not None:
-        references.append((threshold, "Shuffled labels, 95th pct", "--"))
-    for value, text, style in references:
+        references.append((threshold, "Shuffled labels, 95th pct", "--", -3, "top"))
+    for value, text, style, dy, va in references:
         ax.axhline(value, color=INK_2, lw=1, ls=style)
-        ax.annotate(f"{text} ({value:.2f})", (layers[-1], value), xytext=(-4, 3),
-                    textcoords="offset points", ha="right", fontsize=7.5, color=INK_2)
+        x_text = layers[-1] if dy > 0 else layers[len(layers) // 3]
+        ax.annotate(f"{text} ({value:.2f})", (x_text, value), xytext=(-4, dy),
+                    textcoords="offset points", ha="right", va=va, fontsize=7.5, color=INK_2)
     ax.axhline(0.5, color=MUTED, lw=0.8)
 
     peak = int(auc.argmax())
     ax.annotate(f"{auc[peak]:.2f}, layer {peak}", (peak, auc[peak]), xytext=(0, 7),
                 textcoords="offset points", ha="center", fontsize=8.5, color=INK)
     ax.set_xlim(0, layers[-1])
-    ax.set_ylim(0.3, 1.0)
+    ax.set_ylim(0.3, 1.05)
     ax.set_title(title, color=INK, fontsize=10, loc="left")
     ax.set_xlabel("Layer (0 = embeddings)", color=INK_2, fontsize=9)
     ax.set_ylabel("AUC, held-out chart formats", color=INK_2, fontsize=9)
@@ -130,10 +133,21 @@ def plot_curve(auc, per_format, held_out, threshold, bow, visit_only, path: Path
     for side in ("top", "right", "left"):
         ax.spines[side].set_visible(False)
     ax.spines["bottom"].set_color(AXIS)
-    ax.legend(frameon=False, fontsize=8, labelcolor=INK_2, loc="upper left")
+    ax.legend(frameon=False, fontsize=8, labelcolor=INK_2, loc="lower right")
     fig.tight_layout()
     fig.savefig(path, facecolor=SURFACE)
     plt.close(fig)
+
+
+def replot(json_path: Path) -> None:
+    """Redraw figure 1 from a saved probe_<position>.json without rerunning the null."""
+    saved = json.loads(Path(json_path).read_text())
+    where = "after reading the new visit" if saved["position"] == "visit_end" else "before answering"
+    plot_curve(np.array(saved["auc"]), {k: np.array(v) for k, v in saved["per_format"].items()},
+               {k: np.array(v) for k, v in saved["held_out_type"].items()},
+               saved["null_threshold_95"], saved["bag_of_words"], saved["visit_only"],
+               Path(json_path).parent / f"fig1_auc_by_layer_{saved['position']}.png",
+               f"Is tampering decodable from activations {where}?")
 
 
 def align(X, ids, rows):

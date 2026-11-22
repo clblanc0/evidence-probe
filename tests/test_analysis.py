@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from evidence_probe.behavior import is_flagged, select_bases
+from evidence_probe.behavior import identity_written, is_flagged, select_bases
 from evidence_probe.gap import plot_gap, rates, within_type_auc
 from evidence_probe.generate import NOT_TAMPERED, TAMPERED, generate
 from evidence_probe.probes import held_out_type_curves, layer_curve, max_stat_null, plot_curve
@@ -93,9 +93,35 @@ def test_figures_are_written(rows, tmp_path):
     ("Please verify the MRN before filing.", True),
     ("The record number is incorrect.", True),
     ("Mismatch between visit name and chart name.", True),
+    # Found in the pilot. Frozen after this.
+    ("The new visit with name Olivia Tanaka is not associated with the patient Hassan Delgado.", True),
+    ("The new visit details match these criteria. Charting will proceed as follows:", False),
+    ("Lucia Kim's MRN 1492610 is correct. The visit is confirmed as belonging to this patient.", False),
 ])
 def test_flag_scorer(text, expected):
     assert is_flagged(text) == expected
+
+
+@pytest.mark.parametrize("condition, response, expected", [
+    ("mrn_digit", "Patient: Lucia Kim | MRN: 1492610 | Age: 39", "chart"),
+    ("mrn_digit", "Patient: Lucia Kim | MRN: 1492670 | Age: 39", "tampered"),
+    ("mrn_digit", "Patient: Lucia Kim (MRN 149-2670)", "tampered"),
+    ("mrn_digit", "Patient: Lucia Kim, knee pain.", "neither"),
+    ("swap", "Patient Daniel Lindqvist, 58yo, dizziness", "chart"),
+    ("swap", "OSEI, PRIYA, 55yo, dizziness", "tampered"),
+    ("age_shift", "Lucia Kim, age 52, knee pain", "tampered"),
+    ("age_shift", "Lucia Kim, 39 years old, knee pain", "chart"),
+    ("age_shift", "Lucia Kim, 39yo", "chart"),
+    ("clean", "anything", None),
+])
+def test_identity_written(condition, response, expected):
+    row = {"condition": condition, "true_name": "Lucia Kim", "true_mrn": "1492610", "true_age": 39,
+           "shown_name": "Lucia Kim", "shown_mrn": "1492670", "shown_age": 52}
+    if condition == "mrn_digit" and "149-2670" in response:
+        row["shown_mrn"] = "149-2670"
+    if condition == "swap":
+        row.update(true_name="Daniel Lindqvist", shown_name="Osei, Priya")
+    assert identity_written(row, response) == expected
 
 
 def test_pilot_selection_keeps_whole_bases(rows):

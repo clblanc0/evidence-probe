@@ -28,8 +28,13 @@ def load_model(name: str):
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    dtype = torch.float16 if device == "cuda" else torch.float32
+    if torch.cuda.is_available():
+        device = "cuda"
+    elif torch.backends.mps.is_available():  # Apple silicon GPU.
+        device = "mps"
+    else:
+        device = "cpu"
+    dtype = torch.float32 if device == "cpu" else torch.float16
     tokenizer = AutoTokenizer.from_pretrained(name)
     model = AutoModelForCausalLM.from_pretrained(name, torch_dtype=dtype).to(device).eval()
     return model, tokenizer

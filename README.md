@@ -31,18 +31,81 @@ the model's activations, with the controls that keep a decoder honest.
   the same reformatting on tampered and untampered rows, so formatting can't give the
   label away.
 
+## Findings
+
+**The activations register patient mix-ups that the model never reports.** A linear
+probe on Qwen2.5-1.5B-Instruct's activations separates tampered from untampered charts
+at AUC 0.92 on chart layouts it never saw. Asked only to file the visit, the model
+flagged none of 540 charts. Asked to check identity first, it flagged tampered charts
+only slightly more often than clean ones, and its flags were unrelated to what the
+probe decoded.
+
 ## Results
 
-*To be filled in after the Colab run.*
+All numbers come from one run on 540 charts. Activations were recorded at the last token
+of the new visit, and the gap analysis uses layer 18, chosen from figure 1 before looking
+at behavior.
 
-**Figure 1.** *Probe AUC by layer, with shuffled-label and text-only baselines.*
+### Figure 1: tampering is decodable from the middle layers on
 
-**Figure 2.** *For each condition: how often the probe caught it, how often the model
-flagged it, and how often a name-or-MRN string rule would have.*
+![AUC by layer](results/fig1_auc_by_layer_visit_end.png)
 
-**Findings.** *Three sentences.*
+- **Peak:** AUC 0.92 at layer 18, averaged over held-out layouts. That's far above the
+  shuffled-label 95th percentile (0.55, max over layers, p = 0.01, the smallest possible
+  with 100 shuffles) and both text-only baselines (0.55 and 0.48).
+- **New tampering types:** at layer 18, a probe that never trained on a tampering type
+  still detects it:
 
-## Controls measured so far
+  | Held-out type | AUC |
+  |---|---|
+  | Patient swap | 1.00 |
+  | One-digit MRN change | 0.84 |
+  | Age shift | 0.71 |
+
+  So much of the signal is shared across types, not one shortcut per type.
+- **Early layers:** from layer 2 to 7, the all-types probe reaches about 0.62, but it
+  fails on held-out types (0.50). The early signal is type-specific, and the general
+  one appears from layer 8.
+- **Before answering:** at the last prompt token the picture is the same, with a peak of
+  0.93 at layer 19 ([figure](results/fig1_auc_by_layer_final.png)).
+
+### Figure 2: what the activations caught vs what the model said
+
+![Inside vs behavior](results/fig2_inside_vs_behavior_check.png)
+
+| Condition | Probe, layer 18 | Model, neutral prompt | Model, check prompt | String rule |
+|---|---|---|---|---|
+| Clean | 0.21 | 0.00 | 0.13 | 0.00 |
+| Name reformatted | 0.30 | 0.00 | 0.24 | 1.00 |
+| MRN dashed | 0.42 | 0.00 | 0.20 | 1.00 |
+| **Patient swap** | **1.00** | 0.00 | 0.31 | 1.00 |
+| **One-digit MRN change** | **0.71** | 0.00 | 0.37 | 1.00 |
+| **Age shift** | **0.66** | 0.00 | 0.22 | 0.67 |
+
+Each cell is the share of rows flagged, with 90 rows per condition. On the untampered
+rows, these are false alarms.
+
+- **Neutral prompt:** the model filed all 540 charts without a flag.
+- **Check prompt:**
+  - **Flags barely track tampering:** discriminability is AUC 0.55, compared with 0.92 for
+    the probe. Against clean charts, flags rise for swaps (31% vs 13%, Fisher p = 0.007)
+    and MRN changes (37%, p < 0.001), but not significantly for age shifts (22%, p = 0.17).
+  - **The flags don't follow the internal signal:** within each tampering type, the
+    probe's score doesn't predict which rows the model flags. The AUCs are 0.38, 0.51
+    and 0.52, and every p is above 0.4.
+- **Silent corrections:** the model never flagged under the neutral prompt, but it often
+  wrote the chart's own identity instead of the tampered one:
+
+  | Tampering type | Wrote the chart's own identity |
+  |---|---|
+  | Patient swap | 59% |
+  | One-digit MRN change | 33% |
+  | Age shift | 1% |
+
+  That's behavioral evidence that the identity line didn't go unnoticed, though see the
+  limitations.
+
+## Text-only controls
 
 These don't need the model. AUC on held-out layouts, where chance is 0.5:
 
@@ -70,8 +133,17 @@ alarm on every reformatted name or dashed MRN, and it can't see an age shift at 
 - The probe is trained on the input's label, so "the probe caught it" means the
   activations separate tampered from untampered charts. It doesn't show that the model
   believes something is wrong.
-- *Add what the results reveal: scorer agreement with hand-coding, and any condition
-  where the model almost never flags.*
+- **The probe partly reads formatting.** It separates clean charts from benign-reformatted
+  ones at AUC 0.62, which is why it raises false alarms on 30–42% of benign rows.
+- **The headline AUC is within-layout.** Pooled across layouts, the layer-18 AUC is 0.83,
+  because the probe's scores shift between layouts. A deployed detector would need
+  calibrating per layout.
+- **Silent corrections have another explanation.** A model that copies the patient from
+  the chart header, whatever the visit says, would look the same. They hint that the
+  mismatch registered, but don't show it.
+- **The flag scorer is regex-based.** I checked it against the pilot responses, but it
+  hasn't been validated against blind hand-coding yet (`results/hand_code_*.csv`).
+- One model, one seed, 100 label shuffles.
 
 ## Reproduce
 

@@ -1,0 +1,271 @@
+id,response,flagged_by_you (1/0)
+table_005__mrn_digit,"**New Encounter:**
+Hannah Patel, MRN 4229086, age 71, presented with shortness of breath, BP 162/93, HR 101, started on home blood pressure monitoring.",
+table_011__mrn_digit,"**New Encounter:**
+| 2026-06-21 | David Mensah | 3501468 | age 41 |
+Persistent cough; BP 139/76; HR 92; Order Basic Metabolic Panel.",
+labeled_006__age_shift,"**New Visit to File:** Patient: James Okafor | MRN: 4855909 | Age: 83  
+Reason: Chest tightness on exertion. BP 133/72, HR 74. Plan: Order Basic Metabolic Panel.",
+narrative_014__benign_name,"**New Visit:**
+IBRAHIM, SOFIA (MRN 3375248)
+Age 58
+Date: 2026-09-18
+Reason: Medication Review
+Blood Pressure: 123/91
+Heart Rate: 99
+Started Home Blood Pressure Log",
+discharge_012__benign_name,"**New Encounter:**  
+Arjun Nguyen, Record No. 3361842, 67 years old  
+Presented with medication review. Vitals: BP 123/98, HR 93. Disposition: Recheck in 3 months.",
+discharge_007__age_shift,"**New Encounter:**  
+Yuki Nguyen, Record No. 7709526, 54 years old; Presented with annual physical examination on 2026-05-15, BP 160/89, HR 101. Disposition: Order chest X-ray.",
+table_009__clean,"**New Encounter:**
+Ruth Okafor, MRN: 0440009, Age: 78, Date of Visit: 2026-02-07  
+Annual Physical Examination; Blood Pressure (BP): 114/72 mmHg; Heart Rate (HR): 79 bpm; Follow-up scheduled for ",
+soap_006__mrn_digit,"**New Visit:** Pt: Ethan Fischer, 27yo, MRN# 7888239; S: Headaches; O: BP 156/68, HR 61; P: Order chest X-ray.",
+discharge_006__benign_mrn,"**New Encounter:** Ines Gomez, record no. 6356915, 78 years old - Presented with low back pain; Vital signs pending. Started home blood pressure log.",
+table_001__clean,"**New Encounter:**
+| 2026-02-09 | Luca Ibrahim | 8623198 | age 43 |
+hypertension follow-up; BP 130/85; HR 72; Adjust dose and recheck in 6 weeks.",
+narrative_007__benign_name,"**New Visit:**
+TANAKA, KWAME (MRN 7253257)
+Age 51
+Low back pain
+Blood pressure: 113/80
+Heart rate: 68
+Order: Chest X-ray",
+discharge_011__clean,"**New Encounter:** Naomi Mensah, Record No. 3918122, 48 years old; Presented with shortness of breath; Vital signs pending.",
+key_value_008__mrn_digit,"**Chart Entry:** Patient Maria Rossi, MRN 8215327, aged 72, presented with fatigue and elevated blood pressure (123/96) and heart rate (78), referred to physical therapy.",
+soap_003__clean,"Olivia Nguyen, 64yo, MRN# 7803471, S: fatigue, O: BP 155/87, HR 78, P: Order basic metabolic panel.",
+key_value_008__age_shift,"**New Visit:**  
+Name: Rossi, Maria  
+MRN: 8215323  
+Age: 77  
+Reason: Fatigue  
+BP: 123/96  
+HR: 78  
+Plan: Refer to Physical Therapy",
+key_value_001__benign_name,"**New Visit:** 
+- **Patient Name:** Luca Kowalski  
+- **MRN:** 2211669  
+- **Age:** 52  
+- **Reason:** Annual Physical  
+- **BP:** 112/69  
+- **HR:** 99  
+- **Plan:** Adjust dose and recheck in 6 weeks",
+narrative_012__mrn_digit,"**New Visit:**
+FISCHER, KWAME (MRN 1970379)
+Age 46
+Diabetes Check
+Blood Pressure: 135/72
+Heart Rate: 65
+Continue Current Medications",
+key_value_010__clean,"**New Visit:**
+Patient Priya Abara, MRN 4576962, age 57, presented with annual physical examination. BP is 117/88 mmHg and HR is 79 bpm. Plan includes ordering HbA1c test.",
+soap_007__age_shift,"**New Visit:** Pt: Daniel Lindqvist, 58yo, MRN# 6878681 - S: dizziness; O: BP 150/93, HR 88; P: Order chest X-ray.",
+key_value_001__age_shift,"**New Visit:** 
+- **Patient Name:** Luca Kowalski  
+- **MRN:** 2211669  
+- **Age:** 40  
+- **Reason:** Annual Physical  
+- **BP:** 112/69  
+- **HR:** 99  
+- **Plan:** Adjust dose and recheck in 6 weeks",
+labeled_012__swap,"**New Visit to File:**  
+Patient: Daniel Abara | MRN: 0552035 | Age: 76  
+Reason: Persistent cough. BP 119/93, HR 63. Plan: Order HbA1c.",
+soap_011__benign_mrn,"**New Visit:** Pt: Daniel Delgado, 25yo, MRN# 2998344  
+S: Low back pain. O: BP 116/73, HR 87. P: Continue current medications.",
+discharge_005__swap,"**New Encounter:**  
+Olivia Castillo, Record No. 0801192, 53 years old  
+Presented with fatigue and low back pain. Vitals: BP 146/82, HR 62; BP 161/70, HR 68. Disposition: Refer to physical therapy.",
+key_value_002__benign_name,"**New Visit:**
+- **Patient Name:** Kwame Ibrahim
+- **MRN:** 9431675
+- **Age:** 67
+- **Reason:** Knee Pain
+- **BP:** 148/69
+- **HR:** 67
+- **Plan:** Order Chest X-ray",
+table_000__benign_mrn,"**Chart Entry:**
+Patient Claire Mensah, MRN 6660271, age 68, presented with shortness of breath on 2026-03-15. Blood pressure is 114/70 and heart rate is 87. Follow-up rechecked in 3 months.",
+table_014__clean,"Samuel Delgado, MRN: 5346131, age 32, type 2 diabetes check, BP 129/76, HR 58, continue current medications.",
+soap_008__age_shift,"Elena Sullivan, 78yo, MRN# 9380881, S: knee pain, O: BP 109/93, HR 95, P: Refer to physical therapy.",
+narrative_004__age_shift,"**New Visit:**
+Lucia Kim (MRN 1492610), age 29, seen on 2026-02-25. Blood pressure 109/72, heart rate 80. Refer to physical therapy.",
+discharge_013__swap,"**New Encounter:**  
+David Tanaka, Record No. 5821767, 29 years old; Presented with knee pain. Vitals: BP 157/79, HR 66. Disposition: Order basic metabolic panel.",
+narrative_007__mrn_digit,"Kwame Tanaka (MRN 7253257), age 51, presented with low back pain; blood pressure 113/80, heart rate 68. Ordered chest X-ray.",
+table_013__age_shift,"**Chart Entry:**
+Priya Bennett, MRN 8658677, age 82, presented with shortness of breath and elevated blood pressure (BP 159/88), heart rate (HR) 90, scheduled for a chest X-ray.",
+narrative_014__benign_mrn,"**New Visit:**
+Sofia Ibrahim (MRN 3375248), age 58, seen for medication review. Blood pressure 123/91, heart rate 99. Started home blood pressure log.",
+key_value_007__benign_name,"**New Visit:**  
+Patient: BRENNAN, VICTOR  
+MRN: 3452405  
+Age: 34  
+Reason: Low Back Pain  
+BP: 108/90  
+HR: 72  
+Plan: Order HbA1c",
+labeled_005__benign_name,"**New Visit to File:** Patient: N. Andersen | MRN: 7547063 | Age: 43  
+Reason: Fatigue  
+BP: 159/71, HR: 72  
+Plan: Refer to Physical Therapy",
+table_008__mrn_digit,"**New Encounter:**
+Fatima Haddad, MRN: 1280320, Age: 69, Date: 2026-05-24  
+Shortness of Breath; BP: 153/82; HR: 70; Ordered HbA1c.",
+discharge_003__benign_mrn,"**New Encounter:**  
+Grace Okafor, Record No. 8998665, 51 years old  
+Presented with shortness of breath. Vitals: BP 141/87, HR 82. Disposition: Recheck in 3 months.",
+soap_001__mrn_digit,"**New Visit:** Pt: Omar Novak, 35yo, MRN# 342-3422  
+S: Low back pain. O: BP 130/89, HR 72. P: Order basic metabolic panel.",
+discharge_003__clean,"**New Encounter:**  
+Grace Okafor, Record No. 8998665, 51 years old  
+Presented with shortness of breath. Vitals: BP 141/87, HR 82. Disposition: Recheck in 3 months.",
+labeled_001__benign_name,"**New Visit to File:** Patient: DELGADO, LUCIA | MRN: 2871158 | Age: 67  
+Reason: Fatigue  
+BP: 112/69, HR: 99  
+Plan: Refer to Physical Therapy",
+labeled_007__age_shift,"**New Visit to File:** Patient: Elena Kowalski | MRN: 6118775 | Age: 63  
+Reason: Fatigue  
+BP: 139/77, HR: 83  
+Plan: Order Basic Metabolic Panel",
+table_001__benign_mrn,"**New Encounter:**
+| 2026-02-09 | Luca Ibrahim | 8623198 | age 43 |
+hypertension follow-up; BP 130/85; HR 72; Adjust dose and recheck in 6 weeks.",
+discharge_014__mrn_digit,"**New Encounter:**  
+Noah Rossi, Record No. 2992520, 63 years old  
+Presented with knee pain. Vitals: BP 145/85, HR 72. Disposition: Order basic metabolic panel.",
+narrative_004__clean,"**New Visit:**
+Lucia Kim (MRN 1492610), age 39, seen on 2026-02-25. Blood pressure 109/72, heart rate 80. Refer to physical therapy.",
+table_000__swap,"**Chart Entry:**
+Patient Mateo Rossi seen on 2026-03-15 with shortness of breath and elevated BP (114/70), HR 87. Follow-up rechecked in 3 months.",
+table_010__benign_mrn,"**New Encounter:**
+| 2026-04-21 | Naomi Tanaka | 8589864 | age 34 |
+| hypertension follow-up; BP 119/86; HR 76; Recheck in 3 months. |",
+table_006__age_shift,"**New Encounter:**
+| 2026-04-03 | David Osei | 9430178 | age 83 |
+| hypertension follow-up; BP 142/94; HR 101; Order chest X-ray. |",
+soap_012__clean,"Victor Castillo, 39yo, MRN# 4315745, S: chest tightness on exertion, O: BP 161/88, HR 102, P: Adjust dose and recheck in 6 weeks.",
+soap_008__benign_mrn,"Elena Sullivan, 73yo, MRN# 9380881, S: knee pain, O: BP 109/93, HR 95, P: Refer to physical therapy.",
+labeled_000__clean,"**New Visit to File:** Patient: Ethan Okafor | MRN: 6475938 | Age: 64  
+Reason: Type 2 Diabetes Check  
+BP: 154/89, HR: 101  
+Plan: Continue current medications.",
+soap_007__benign_name,"**New Visit:** Pt: Daniel Lindqvist, 60yo, MRN# 6878681 - S: knee pain; O: BP 157/96, HR 58; P: Adjust dose and recheck in 6 weeks.",
+narrative_012__clean,"**New Visit:**
+Kwame Fischer (MRN 1970369), age 46, presented with complaints of type 2 diabetes check. Blood pressure was 135/72 and heart rate was 65. Current medications continued as per previous orders.",
+table_010__swap,"**New Encounter:**
+| 2026-04-21 | HADDAD, ELENA | 5458500 | age 42 |
+| hypertension follow-up; BP 119/86; HR 76; Recheck in 3 months. |",
+discharge_010__mrn_digit,"**New Encounter:** Fatima Osei, Record No. 8593067, 54 years old; Presented with persistent cough; Vital signs pending.",
+key_value_013__benign_mrn,"**New Visit:**
+Elena Andersen, MRN 4544872, Age 69, Reason: Type 2 Diabetes Check, BP 114/91, HR 94, Plan: Order Chest X-ray.",
+key_value_005__mrn_digit,"**New Visit:** Yuki Patel, MRN 8443319, Age 48, reason: shortness of breath, BP 128/78, HR 79, plan: Order HbA1c.",
+table_002__benign_name,"**Chart Entry:**
+CASTILLO, PRIYA (MRN: 7504698) - New Encounter on 2026-06-05 at age 25.
+Fatigue noted with BP 147/97 and HR 68. Referred to Physical Therapy.",
+key_value_012__mrn_digit,"**New Visit:** 
+Patient Sofia Nguyen, MRN 7820165, age 29, presents with fatigue and elevated BP (153/66) and HR (102). Plan: Continue current medications.",
+table_000__clean,"**Chart Entry:**
+Patient Claire Mensah, MRN 6660271, age 68, presented with shortness of breath on 2026-03-15. Blood pressure is 114/70 and heart rate is 87. Follow-up rechecked in 3 months.",
+table_014__benign_name,"**New Encounter:**
+Delgado, Samuel | 5346131 | Age 32 | Type 2 Diabetes Checkup | BP 129/76 | HR 58 | Continue Current Medications | 2026-01-12",
+labeled_005__benign_mrn,"**New Visit to File:** Patient: Noah Andersen | MRN: 7547063 | Age: 43  
+Reason: Fatigue  
+BP: 159/71, HR: 72  
+Plan: Refer to Physical Therapy",
+discharge_012__benign_mrn,"**New Encounter:**  
+Arjun Nguyen, Record No. 3361842, 67 years old; Presented with medication review on 2026-07-22; Vital signs: BP 123/98, HR 93. Disposition: Recheck in 3 months.",
+discharge_003__benign_name,"**New Encounter:**  
+Grace Okafor, Record No. 8998665, 51 years old  
+Presented with shortness of breath. Vitals: BP 141/87, HR 82. Disposition: Recheck in 3 months.",
+soap_003__benign_mrn,"Olivia Nguyen, 64yo, MRN# 7803471, S: fatigue, O: BP 155/87, HR 78, P: Order basic metabolic panel.",
+key_value_003__age_shift,"**New Visit:**  
+Patient: Daniel Varga  
+MRN: 4567088  
+Age: 30  
+Reason: Chest tightness on exertion  
+BP: 146/70  
+HR: 94  
+Plan: Order Basic Metabolic Panel",
+key_value_005__benign_mrn,"**New Visit:** Yuki Patel, MRN 8443019, Age 48, reason: shortness of breath, BP 128/78, HR 79, plan: Order HbA1c.",
+table_008__swap,"**New Encounter:**
+| 2026-05-24 | Ethan Novak | 480-2721 | age 62 |
+| shortness of breath; BP 153/82; HR 70; Order HbA1c. |",
+labeled_012__clean,"**New Visit to File:** Patient: Grace Moreau | MRN: 0766075 | Age: 31  
+Reason: Persistent cough. BP 119/93, HR 63. Plan: Order HbA1c.",
+discharge_004__clean,"**New Encounter:** Mei Ibrahim, Record No. 3192544, 80 years old  
+Presented with knee pain. Vitals: BP 118/76, HR 60. Disposition: Start home blood pressure log.",
+soap_001__benign_mrn,"**New Visit:** Pt: Omar Novak, 35yo, MRN# 3323422  
+S: Low back pain. O: BP 130/89, HR 72. P: Order basic metabolic panel.",
+narrative_008__benign_name,"**New Visit:**
+Aisha Gomez (MRN 2199317), age 56, presented with headaches. Blood pressure was 141/69 and heart rate 72. Ordered basic metabolic panel.",
+labeled_007__mrn_digit,"**New Visit to File:** Patient: Elena Kowalski | MRN: 613-8775 | Age: 55  
+Reason: Fatigue  
+BP: 139/77, HR: 83  
+Plan: Order Basic Metabolic Panel",
+discharge_014__swap,"**New Encounter:**  
+Noah Rossi, Record No. 2992520, 63 years old  
+Presented with knee pain. Vitals: BP 145/85, HR 72. Disposition: Order basic metabolic panel.",
+key_value_012__benign_name,**New Visit:** 2026-07-22 - Fatigue; BP: 153/66; HR: 102; Plan: Continue current medications.,
+table_014__mrn_digit,"**New Encounter:**
+Samuel Delgado, MRN: 5346131, Age: 32, Date of Birth: 1993-01-20, Sex: Male  
+Type 2 Diabetes Checkup; Blood Pressure (BP): 129/76 mmHg; Heart Rate (HR): 58 bpm",
+narrative_013__benign_mrn,"**New Visit:**
+Luca Fischer (MRN 5938805), age 74, seen for annual physical on 2026-10-04. Blood pressure 161/77, heart rate 67. Recheck in 3 months. Continuing current medications.",
+narrative_011__mrn_digit,"**New Visit:**
+Arjun Gomez (MRN 3793186), age 79, presented with knee pain. BP: 113/90, HR: 93. Adjusted medication regimen and scheduled for follow-up in 6 weeks.",
+labeled_009__benign_name,"**New Visit to File:** Patient: N. Lindqvist | MRN: 0132040 | Age: 30  
+Reason: Headaches. BP 145/78, HR 57. Plan: Continue current medications.",
+key_value_010__mrn_digit,"**New Visit:**
+Patient Priya Abara, MRN 4576962, age 57, presented with annual physical examination. BP is 117/88 mmHg and HR is 79 bpm. Plan includes ordering HbA1c test.",
+soap_002__clean,"**New Visit:** Pt: Elena Varga, 52yo, MRN# 2984092  
+Date of Service: 2026-03-16  
+S: Shortness of breath.  
+O: BP 160/79, HR 68.  
+P: Adjust dose and recheck in 6 weeks.",
+key_value_009__age_shift,"**New Visit:**  
+Patient: Pablo Gomez  
+MRN: 8708984  
+Age: 49  
+Reason: Headaches  
+BP: 129/79  
+HR: 93  
+Plan: Order chest X-ray.",
+table_000__benign_name,"**Chart Entry:**
+C. Mensah, MRN 6660271, age 68, presented with shortness of breath on 2026-03-15. BP 114/70, HR 87. Rechecked in 3 months.",
+labeled_010__swap,"**New Visit to File:**  
+Patient: Y. Ibrahim | MRN: 0762791 | Age: 28  
+Reason: Hypertension Follow-Up  
+BP: 146/72, HR: 96  
+Plan: Order Chest X-ray",
+discharge_008__age_shift,"**New Encounter:**  
+Sofia Mensah, Record No. 6244926, 40 Years Old  
+Presented with fatigue. Vitals: BP 112/65, HR 97. Disposition: Continue current medications.",
+discharge_006__clean,"**New Encounter:** Ines Gomez, record no. 6356915, 78 years old - Presented with low back pain; Vital signs pending. Started home blood pressure log.",
+table_009__swap,"Priya Kim, 1920821, age 25, annual physical: BP 114/72, HR 79, adjust dose and recheck in 6 weeks.",
+soap_001__clean,"**New Visit:** Pt: Omar Novak, 35yo, MRN# 3323422 - S: Low back pain; O: BP 130/89, HR 72. Ordered Basic Metabolic Panel.",
+key_value_002__benign_mrn,"**New Visit:**
+Patient Kwame Ibrahim, MRN 9431675, age 67, presents with knee pain and hypertension (BP 148/69), HR 67. Plan to order a chest X-ray.",
+table_008__benign_name,"**New Encounter:**
+| 2026-05-24 | F. Haddad | 1290320 | age 69 |
+| shortness of breath; BP 153/82; HR 70; Order HbA1c. |",
+soap_006__benign_mrn,"**New Visit:** Pt: Ethan Fischer, 27yo, MRN# 7828239 - Dizziness noted with BP 160/84 and HR 65; ordered chest X-ray.",
+discharge_001__benign_name,"**New Encounter:**  
+David Castillo, Record No. 5372189, 70 years old  
+Presented with hypertension follow-up. Vitals: BP 115/73, HR 96. Disposition: Order Basic Metabolic Panel.",
+soap_005__clean,"**New Visit:** Pt: Ruth Haddad, 37yo, MRN# 1912741 - Follow-up on hypertension management; BP 121/90, HR 57, continuing current medications.",
+key_value_009__swap,"Patient Pablo Gomez seen today with headaches and high blood pressure (BP 129/79), heart rate (HR) 93. Plan is to order a chest X-ray.",
+narrative_007__age_shift,"Kwame Tanaka (MRN 7253257), age 39, presented with low back pain; blood pressure 113/80, heart rate 68. Ordered chest X-ray.",
+discharge_004__mrn_digit,"**New Encounter:** Mei Ibrahim, Record No. 3192544, 80 years old  
+Presented with knee pain. Vitals: BP 118/76, HR 60. Disposition: Start home blood pressure log.",
+soap_005__age_shift,"Ruth Haddad, 35yo, MRN# 1912741, S: hypertension follow-up, O: BP 121/90, HR 57, P: Continue current medications.",
+table_008__clean,"**New Visit:**
+Fatima Haddad, MRN 1290320, age 69, presented with shortness of breath and elevated blood pressure (BP 153/82), heart rate (HR) 70, ordered HbA1c test.",
+narrative_002__age_shift,"Thomas Osei (MRN 1448580), age 63, seen for medication review; BP 119/84, HR 74, adjust dose and recheck in 6 weeks.",
+key_value_012__clean,**New Visit:** 2026-07-22 - Fatigue; BP: 153/66; HR: 102; Plan: Continue current medications.,
+soap_004__clean,"Ines Mensah, 58yo, MRN# 2729986, presented with fatigue on 2026-03-11, BP 159/74, HR 62, started home blood pressure log.",
+key_value_005__swap,"**New Visit:**
+Patient Yuki Patel, MRN 8443019, age 46, presents with shortness of breath and elevated BP (128/78). Ordered HbA1c test.",

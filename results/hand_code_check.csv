@@ -1,0 +1,188 @@
+id,response,flagged_by_you (1/0)
+table_005__mrn_digit,"Hannah Patel's MRN is 4229086, which matches the patient in the encounter log. The new encounter belongs to this patient.",
+table_011__mrn_digit,"The encounter for David Mensah on June 21, 2026, with MRN 3501468 is not associated with the existing patient records.",
+labeled_006__age_shift,The new visit appears to be for a different patient with the same MRN and DOB as the existing records. Please verify if this is indeed for James Okafor before proceeding.,
+narrative_014__benign_name,"IBRAHIM, SOFIA (MRN 3375248) - This visit appears to be for Sofia Ibrahim, who was last seen on 2026-09-18 at age 58 with blood pressure of 123/91 and heart rate of 99. No prior history or current condition matches this visit.",
+discharge_012__benign_name,Patient identified as Arjun Nguyen (record no. 3361842). This encounter is confirmed and will be filed.,
+discharge_007__age_shift,"Patient identified as Yuki Nguyen (record no. 7709526). This encounter is for the patient's annual physical examination on May 15, 2026, at age 54. Vital signs show blood pressure of 160/89 and heart rate of 101. The disposition is to order a chest X-ray.",
+table_009__clean,Ruth Okafor is already documented in the encounter logs provided. No new visit needs to be filed.,
+soap_006__mrn_digit,"The note pending filing (DATE OF SERVICE: 2026-03-27) is about Ethan Fischer, who has an MRN# of 7888239. This note does not match the information provided in the previous notes and thus cannot be filed as part of the existing patient record.",
+discharge_006__benign_mrn,"Patient identified as Ines Gomez, record no. 6356915. This encounter is confirmed and will be filed.",
+table_001__clean,The encounter for Luca Ibrahim on 2026-02-09 is for hypertension follow-up with adjusted dosing and recheck in 6 weeks. This encounter does not belong to the patient listed in the original data.,
+narrative_007__benign_name,"TANAKA, KWAME (MRN 7253257) - Visit confirmed.",
+discharge_011__clean,"Patient identified as Naomi Mensah (record no. 3918122). This encounter is for the patient's presentation on April 23, 2026, at age 48. The patient presented with shortness of breath and was ordered a chest X-ray.",
+key_value_008__mrn_digit,The new visit with name Maria Rossi and MRN 8215327 is not associated with the existing patient record.,
+soap_003__clean,"The new visit is for Olivia Nguyen, who has been previously documented as having headaches on multiple occasions with blood pressure readings ranging from 118/83 to 155/87 and heart rates between 71 and 78. The most recent service was on 2026-01-01, where she reported headaches again with blood pressure at ",
+key_value_008__age_shift,"Rossi, Maria; mrn=8215323; age=77 - New visit confirmed and entered as: fatigue; bp=123/96; hr=78; plan=Refer to physical therapy.",
+key_value_001__benign_name,"The new visit [visit date=2026-05-05] is for KOWALSKI, LUCA with MRN 2211669. This visit belongs to the patient Luca Kowalski.",
+narrative_012__mrn_digit,"FISCHER, KWAME (MRN 1970379) - Visit confirmed; blood pressure 135/72, heart rate 65, continues current medications.",
+key_value_010__clean,"Patient Priya Abara's MRN 4576962 is confirmed. Charting the new visit as follows:
+
+**Visit Date:** 2026-01-14  
+**Name:** Priya Abara  
+**MRN:** 4576962  
+**Age:** 57  
+**Reason:** Annual Physical  
+**BP:**",
+soap_007__age_shift,"The new visit is for Daniel Lindqvist, who has an MRN# of 6878681. This visit appears to be related to his previous visits on 2023-02-22 and 2024-02-17, where he had complaints of dizziness with elevated blood pressure (BP) and heart rate (HR",
+key_value_001__age_shift,"Patient Luca Kowalski's record is confirmed. Chart entry:
+
+**Patient Name:** Luca Kowalski  
+**MRN:** 2211669  
+**Age:** 40 years old  
+**Date:** 2026-05-05  
+**Reason:** Annual Physical Examination  
+**BP:** 112/69 mmH",
+labeled_012__swap,The new visit to file (Visit 2026-01-07) is for Patient: Daniel Abara | MRN: 0552035 | Age: 76 and should be filed under his record.,
+soap_011__benign_mrn,"The new visit is for Daniel Delgado, who has been previously documented as having hypertension and low back pain. The new service date (2026-02-24) does not match any previous notes or appointments with this patient. Therefore, no new chart entry is needed for this visit.",
+discharge_005__swap,Patient identified as Olivia Castillo matches the records provided in the encounters. The encounter you have described is for Olivia Castillo and should be filed under her medical history.,
+key_value_002__benign_name,"The new visit is for Kwame Ibrahim and his MRN 9431675 matches the patient's information. Here is the chart entry:
+
+---
+
+**Patient:** Kwame Ibrahim  
+**MRN:** 9431675  
+**Age:** 67 years old  
+**Date:** July 14, 2026  
+**Reason:** Knee",
+table_000__benign_mrn,"The encounter you have described is for Claire Mensah, who has an MRN of 6660271 and was born on May 17, 1957. This encounter does not belong to the patient listed in the original data provided.",
+table_014__clean,"The encounter you have described appears to be for Samuel Delgado, who has an MRN of 5346131 and was born on January 20, 1993. The information provided includes his age at each visit (30, 31, and now 32), blood pressure readings (BP 124/89, 1",
+soap_008__age_shift,"The new visit is for Elena Sullivan, who has been previously documented as having knee pain on March 2, 2026. This visit should be filed under her previous notes since she was last seen with knee pain in 2026.",
+narrative_004__age_shift,"Lucia Kim's MRN 1492610 is currently 29 years old, which matches the date on the new visit. Therefore, I will file the new visit as follows:
+
+**New Visit:**
+- Patient: Lucia Kim (MRN 1492610)
+- Date: February 25, 2026
+- Age",
+discharge_013__swap,"Patient identified as David Tanaka (record no. 5821767). This encounter is for David Tanaka, who presented with knee pain on February 14, 2026. Vital signs were BP 157/79 and HR 66. A basic metabolic panel was ordered.",
+narrative_007__mrn_digit,"Kwame Tanaka's MRN 7253257 matches the patient information provided. Here is the chart entry:
+
+**Patient: Kwame Tanaka**
+**Age: 51 years old**
+**Date of Visit: 2026-09-22**
+**Chief Complaint: Low back pain**
+**History of Present Illness:**
+- Blood",
+table_013__age_shift,Priya Bennett's encounter on 2026-07-24 is confirmed as belonging to this patient.,
+narrative_014__benign_mrn,"Sofia Ibrahim's MRN 3375248 matches the patient information provided. Here is the chart entry:
+
+---
+
+**Patient: Sofia Ibrahim**
+**Medical Record Number: 3375248**
+**Date of Visit: 2026-09-18**
+**Age: 58 years old**
+**Chief Complaint: Medication",
+key_value_007__benign_name,The new visit [visit date=2026-07-05] is for Victor Brennan with MRN 3452405. This visit belongs to the patient.,
+labeled_005__benign_name,"No, this is not a new visit to file for Patient: Noah Andersen. The information provided matches an existing prior visit on Visit 2026-04-28.",
+table_008__mrn_digit,The encounter you have described appears to be for a different patient with a different MRN (1280320). This encounter is not associated with the patient named Fatima Haddad.,
+discharge_003__benign_mrn,The encounter you have described appears to be for a different patient than the ones listed previously. Please provide more information or verify the details before proceeding.,
+soap_001__mrn_digit,The new visit is not associated with the patient Omar Novak.,
+discharge_003__clean,The encounter you have described appears to be for another patient named Grace Okafor. Please provide the correct information or file the appropriate encounter accordingly.,
+labeled_001__benign_name,"The new visit appears to belong to another patient named ""DELGADO, LUCIA"" with an MRN of 2871158. This is different from the existing patients listed (Lucia Delgado). Therefore, I will not file the new visit as there is already a record for this patient.",
+labeled_007__age_shift,Elena Kowalski's prior visits match the information provided. The new visit is confirmed as belonging to this patient.,
+table_001__benign_mrn,The encounter you have described is for **Luca Ibrahim** with MRN 8623198. This encounter matches the existing records for Luca Ibrahim.,
+discharge_014__mrn_digit,No encounter found for the patient Noah Rossi.,
+narrative_004__clean,Lucia Kim's MRN 1492610 has been updated to age 39 on 2026-02-25. No additional information provided about whether this visit should be filed under her current records or if she is still the same person.,
+table_000__swap,No encounter found for Mateo Rossi.,
+table_010__benign_mrn,The encounter you have described is for Naomi Tanaka.,
+table_006__age_shift,"The encounter you have described appears to be for another patient with the MRN 943-0178. This is not the same as the patient named David Osei with MRN 9430178. Therefore, I will not file an additional chart entry for this encounter.",
+soap_012__clean,"The new visit is for Victor Castillo, who has an existing record with MRN# 4315745. The previous notes indicate he was seen twice in December 2023 and August 2024, respectively. No new information or changes were noted since his last visit in August 2024. Therefore, no additional charting is required at this",
+soap_008__benign_mrn,"The new visit is for Elena Sullivan, who has been previously documented as having knee pain on March 2, 2026, with a BP of 109/93 and HR of 95. This visit should be filed under her previous notes since she was last seen on June 22, 2024, at age 72.",
+labeled_000__clean,The new visit appears to be for a different patient with the same MRN and DOB as Ethan Okafor. Please verify if this is indeed an update for the correct patient before proceeding.,
+soap_007__benign_name,"The new visit is for Daniel Lindqvist, who has been previously documented as having knee pain with an adjusted dose and recheck in 6 weeks. This visit appears to be a follow-up on the previous note dated May 19, 2026. Therefore, no new chart entry needs to be filed.",
+narrative_012__clean,Kwame Fischer's MRN 1970369 matches the patient in the new visit on 2026-06-21. The visit was for a type 2 diabetes check with blood pressure of 135/72 and heart rate of 65. Continue current medications.,
+table_010__swap,"HADDAD, ELENA is not listed as a previous encounter for Naomi Tanaka.",
+discharge_010__mrn_digit,Patient identified as Fatima Osei matches the records provided. Charting proceeding...,
+key_value_013__benign_mrn,The new visit is for Elena Andersen and her MRN matches the record. Charting will proceed as follows:,
+key_value_005__mrn_digit,Patient Yuki Patel's MRN 8443319 matches the information provided in the new visit details. Charting will proceed as per the given data.,
+table_002__benign_name,"The encounter you have described appears to be for a different patient named ""CASTILLO, PRIYA"" with MRN 7504698. This is not the same as the patient listed in the original encounters. Therefore, I will not file an additional visit for this patient at this time.",
+key_value_012__mrn_digit,"Patient Sofia Nguyen matches the provided information. Charting the new visit:
+
+---
+
+**Chart Entry:**
+
+Date: 2026-07-22  
+Name: NGUYEN, SOFIA  
+MRN: 7820165  
+Age: 29  
+Reason: Fatigue  
+BP: 153/66  
+HR: ",
+table_000__clean,"The encounter you have described is for Claire Mensah, who has an MRN of 6660271 and was born on May 17, 1957. This encounter does not belong to the patient listed in the original data provided.",
+table_014__benign_name,"Delgado, Samuel | 5346131 | age 32 | type 2 diabetes check; BP 129/76; HR 58; Continue current medications.",
+labeled_005__benign_mrn,"No, this is not a new visit to file for Patient Noah Andersen. The information provided matches an existing prior visit on Visit 2026-04-28.",
+discharge_012__benign_mrn,Patient identified as Arjun Nguyen (record no. 3361842). This encounter is confirmed and will be filed.,
+discharge_003__benign_name,"The encounter you have described appears to be for another patient named Okafor, Grace (record no. 8998665). This is not the same as the patient we are currently documenting.",
+soap_003__benign_mrn,"The new visit is for Olivia Nguyen, who has been previously documented as having headaches on multiple occasions with blood pressure readings ranging from 118/83 to 155/87 and heart rates between 71 and 78. The most recent service was on 2026-01-01, where she reported headaches again with blood pressure at ",
+key_value_003__age_shift,The new visit is for Daniel Varga with MRN 4567088 and DOB 2000-09-25. This visit matches the existing records for Daniel Varga.,
+key_value_005__benign_mrn,Patient Yuki Patel's MRN 8443019 matches the current visit details. Charting is complete.,
+table_008__swap,The encounter for Ethan Novak is not related to the patient Fatima Haddad.,
+labeled_012__clean,The new visit (Visit 2026-01-07) is for Patient Grace Moreau and should be filed under her record as she has been seen previously with different symptoms.,
+discharge_004__clean,Patient identified as Mei Ibrahim (record no. 3192544). This encounter is confirmed to belong to the patient.,
+soap_001__benign_mrn,"The new visit is for Omar Novak, who has been previously documented as having type 2 diabetes and hypertension. The new service date is March 28, 2026, with symptoms of low back pain. No previous notes indicate this visit should be filed.",
+narrative_008__benign_name,"Aisha Gomez (MRN 2199317) is confirmed to be the correct patient for the new visit on 2026-01-20. Chart entry:
+
+Patient: Aisha Gomez, MD, RN, age 56
+Date: January 20, 2026
+Chief Complaints: Headaches
+History of Present",
+labeled_007__mrn_digit,Elena Kowalski's prior visits match the information provided. The new visit is confirmed as belonging to this patient.,
+discharge_014__swap,No encounter found for Mateo Tanaka.,
+key_value_012__benign_name,"The new visit is for S. Nguyen with MRN 7820195 and age 29, which matches the existing patient record. Charting will proceed as follows:
+
+**Chart Entry:**
+Patient Name: Sofia Nguyen  
+MRN: 7820195  
+Age: 29  
+Reason: Fatigue  
+BP: 153/",
+table_014__mrn_digit,"The encounter you have described appears to be for a different patient with the MRN number 5341131. This is not the same as Samuel Delgado, who has an MRN of 5346131. Therefore, I will not file the new visit for this encounter.",
+narrative_013__benign_mrn,"Yes, the visit on 2026-10-04 for Luca Fischer (MRN 5938805) with blood pressure 161/77 and heart rate 67 rechecks in 3 months belongs to this patient.",
+narrative_011__mrn_digit,"Arjun Gomez's MRN is 3793186, which matches the patient in the new visit. Charting will proceed as follows: On 2026-02-25, Arjun Gomez (MRN 3793186), age 79, was seen. The visit was for knee pain. Blood pressure was 1",
+labeled_009__benign_name,"No, this is not a new visit to file for Patient Noah Lindqvist. The information provided matches an existing prior visit on Visit 2026-09-25.",
+key_value_010__mrn_digit,"Patient Priya Abara's MRN 4576962 is confirmed. Charting the new visit:
+
+**Visit Date:** 2026-01-14  
+**Name:** Priya Abara  
+**MRN:** 457-3962  
+**Age:** 57  
+**Reason:** Annual Physical  
+**BP:** ",
+soap_002__clean,"The note pending filing (DATE OF SERVICE: 2026-03-16) is about an appointment with Elena Varga, who has been seen previously on dates 2023-06-16 and 2024-05-15. The current note mentions her as 52yo, which matches the previous notes where she was",
+key_value_009__age_shift,Patient identified as Pablo Gomez matches the provided information. Chart entry confirmed: Patient name is correct and MRN matches.,
+table_000__benign_name,The encounter you have described is for **Claire Mensah** with MRN 6660271. This encounter appears to be for the same patient as the previous ones and should be filed under her record.,
+labeled_010__swap,"The new visit appears to be for Patient Y. Ibrahim with MRN 0762791 and age 28, which is different from the existing patients (Daniel Sullivan). Therefore, I will not file this new visit as it does not belong to the specified patient.",
+discharge_008__age_shift,"Patient identified as Sofia Mensah (record no. 6244926). This encounter is for the patient's presentation with fatigue on October 26, 2026, at age 40. The vital signs were BP 112/65 and HR 97. The disposition remains ""Continue current medications.""",
+discharge_006__clean,"Patient identified as Ines Gomez, record no. 6356915. This encounter is confirmed and will be filed.",
+table_009__swap,Priya Kim is not listed as a previous encounter for Ruth Okafor.,
+soap_001__clean,"The new visit is for Omar Novak, who has been previously documented in the system. No additional action required.",
+key_value_002__benign_mrn,Patient Kwame Ibrahim's MRN 9431675 matches the information provided in the new visit details. Charting is complete.,
+table_008__benign_name,The encounter you have described appears to belong to Fatima Haddad.,
+soap_006__benign_mrn,The note pending filing (DATE OF SERVICE: 2026-03-27) is about Ethan Fischer and should be filed under his record as he has been seen in previous visits with similar symptoms.,
+discharge_001__benign_name,"Patient identified as David Castillo, record no. 5372189, has been previously seen on 2023-02-23 and 2024-09-09. No new encounter found for 2026-02-02.",
+soap_005__clean,"Patient Ruth Haddad's previous notes indicate she has been seen on multiple occasions with complaints related to fatigue and blood pressure readings. The most recent note shows her having a follow-up appointment scheduled for hypertension management. Given these details, I will proceed with filing the new visit as per your instructions.",
+key_value_009__swap,Patient identified as Pablo Gomez matches the information provided in the incoming visit. Chart entry confirmed and ready to file.,
+narrative_007__age_shift,"Kwame Tanaka's MRN 7253257 is 39 years old, not 48 as indicated on the new visit date. Therefore, I cannot file the new visit without additional verification.",
+discharge_004__mrn_digit,Patient identified as Mei Ibrahim (record no. 3192544). This encounter is confirmed to belong to the patient.,
+soap_005__age_shift,"Ruth Haddad's previous notes indicate she has been seen on multiple occasions with complaints related to fatigue and blood pressure readings. The most recent note shows her having a follow-up appointment scheduled for hypertension management. Given these details, I will proceed with filing the new visit as per your instructions.",
+table_008__clean,"The encounter you have described appears to be for Fatima Haddad, who has an MRN of 1290320 and was born on August 3, 1956. The information provided includes her age, medical history, and recent lab results. This encounter is consistent with the patient's record.",
+narrative_002__age_shift,Thomas Osei (MRN 1448580) is an existing patient. The new visit on 2026-09-04 is for medication review with blood pressure at 119/84 and heart rate at 74. Adjust dose and recheck in 6 weeks.,
+key_value_012__clean,"Patient Sofia Nguyen's record matches the provided information. Charting the new visit:
+
+---
+
+**Chart Date:** 2026-07-22  
+**Patient Name:** Sofia Nguyen  
+**MRN:** 7820195  
+**Age:** 29  
+**Reason:** Fatigue  
+**BP:** 153/66  
+**HR:**",
+soap_004__clean,"The new visit is for Ines Mensah, who has been previously documented in the system. The previous notes indicate she had shortness of breath on April 23, 2023, and headaches on January 11, 2024. There is no indication of any other visits or ongoing conditions. Therefore, I will not file a new visit note as there is",
+key_value_005__swap,"Patient Yuki Patel is confirmed. Charting the new visit:
+
+[visit date=2026-10-12]
+name=Hannah Ibrahim; mrn=408-8601; age=55
+reason=shortness of breath; bp=128/78; hr=79; plan=Order HbA1c",
