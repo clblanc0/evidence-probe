@@ -7,12 +7,14 @@ the mismatch even though it says nothing?**
 
 ## Why
 
-<!-- Check these numbers against the paper before publishing. -->
-Klang et al. (2026) found that clinical agents usually write straight through tampered
-charts. The best model caught 17.4% of full patient swaps and almost none of the
-one-digit medical record number (MRN) changes. That study measured behavior only. This
-pilot asks the inside question, using the methods of neural decoding: train a decoder on
-the model's activations, with the controls that keep a decoder honest.
+Klang et al. (2026) gave six LLM agents a record-keeping task: copy codes from visit
+headers into a patient's record, where one visit had been tampered with a header swapped
+in from another patient, a one-digit medical record number (MRN) change, or an age shift.
+The agents usually copied the codes into the tampered chart anyway. GPT-4.1 withheld the
+write in 17.4% of header-swap runs, and detection of the subtler MRN and age changes was
+near zero. That study measured behavior only. This pilot asks the inside question, using
+the methods of neural decoding: train a decoder on the model's activations, with the
+controls that keep a decoder honest.
 
 ## Method
 
